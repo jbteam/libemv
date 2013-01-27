@@ -1,0 +1,69 @@
+/*  
+    R_STDLIB.C - platform-specific C library routines for RSAEURO  
+    Copyright(C) 2002 by charry, charry@email.com.cn  
+    RSAEURO - RSA Library compatible with RSAREF(tm) 2.0.  
+  
+    Secure Standard Library Routines.  
+ */   
+   
+#include "rsaeuro.h"   
+   
+/* Library Copyright Message */   
+   
+BYTE *Copyright[] = { "Copyright (c) J.S.A.Kapp 94-96." };   
+   
+#ifndef USE_ANSI   
+   
+/* Secure memset routine */   
+   
+#ifndef USEASM   
+   
+void R_memset(output, value, len)   
+POINTER output;                 /* output block */   
+int value;                      /* value */   
+unsigned int len;               /* length of block */   
+{   
+    if(len != 0) {   
+        do {   
+            *output++ = (unsigned char)value;   
+        }while(--len != 0);   
+    }   
+}   
+   
+/* Secure memcpy routine */   
+   
+void R_memcpy(output, input, len)   
+POINTER output;                 /* output block */   
+POINTER input;                  /* input block */   
+unsigned int len;               /* length of blocks */   
+{   
+    if (len != 0) {   
+        do {   
+            *output++ = *input++;   
+        }while (--len != 0);   
+    }   
+}   
+   
+/* Secure memcmp routine */   
+   
+int R_memcmp(Block1, Block2, len)   
+POINTER Block1;                 /* first block */   
+POINTER Block2;                 /* second block */   
+unsigned int len;               /* length of blocks */   
+{   
+    if(len != 0) {   
+   
+        /* little trick in declaring vars */   
+   
+        register const unsigned char *p1 = Block1, *p2 = Block2;   
+   
+        do {   
+            if(*p1++ != *p2++)   
+                return(*--p1 - *--p2);   
+        }while(--len != 0);   
+    }   
+    return(0);   
+}   
+   
+#endif /* USEASM */   
+#endif /* USE_ANSI */  
