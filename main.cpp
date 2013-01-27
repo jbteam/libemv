@@ -82,14 +82,29 @@ int main(int argc, char **argv)
 		printf("Failed SCardEstablishContext\n");
 		return 1;
 	}
+
+	LPTSTR          pmszReaders = NULL;
+	DWORD           cch = SCARD_AUTOALLOCATE;	
+
+	lReturn = SCardListReaders(hSC,
+		NULL,
+		(LPTSTR)&pmszReaders,
+		&cch );
+
+	if (lReturn != SCARD_S_SUCCESS || *pmszReaders == '\0')
+	{
+		printf("No readers\n");
+		return 1;
+	}
 	
 	DWORD           dwAP;
 	lReturn = SCardConnect( hSC, 
-		(LPCTSTR)"ACS ACR38U 0",
+		(LPCTSTR)pmszReaders,
 		SCARD_SHARE_SHARED,
 		SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1,
 		&hCardHandle,
 		&dwAP );
+	SCardFreeMemory( hSC, pmszReaders );
 	if ( SCARD_S_SUCCESS != lReturn )
 	{
 		lReturn = SCardReconnect(hCardHandle,
@@ -123,7 +138,7 @@ int main(int argc, char **argv)
 	}
 
 	TCHAR           szReader[200];
-	DWORD           cch = 200;
+	cch = 200;
 	BYTE            bAttr[32];
 	DWORD           cByte = 32;
 	DWORD           dwState, dwProtocol;
